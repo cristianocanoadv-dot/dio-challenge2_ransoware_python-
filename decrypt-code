@@ -8,7 +8,7 @@ def descriptografar_arquivo(arquivo,chave):
     f = Fernet(chave)
     with open(arquivo, "rb") as file:
         dados = file.read()
-        dados_descriptografados = f.descrypt(dados)
+        dados_descriptografados = f.decrypt(dados)
     with open(arquivo, "wb") as file:
         file.write(dados_descriptografados)
 
